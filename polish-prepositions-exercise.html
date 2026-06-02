@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Przyimki – Ćwiczenie A2/B1</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink: #1a1a2e;
+    --rust: #c0392b;
+    --gold: #b8860b;
+    --sage: #4a7c59;
+    --paper: #faf7f2;
+    --border: #d4c5a9;
+    --shadow: rgba(26,26,46,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .page-header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 28px 48px;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    border-bottom: 3px solid var(--gold);
+  }
+
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .page-header .level-badge {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-family: 'Source Serif 4', serif;
+    font-weight: 400;
+  }
+
+  .page-header .subtitle {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-left: auto;
+  }
+
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  .instruction {
+    background: var(--paper);
+    border-left: 4px solid var(--gold);
+    padding: 14px 20px;
+    margin-bottom: 36px;
+    font-size: 0.95rem;
+    color: #555;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .paragraph-block {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    line-height: 2.2;
+    font-size: 1.05rem;
+    box-shadow: 0 2px 8px var(--shadow);
+    position: relative;
+  }
+
+  .paragraph-block::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-family: 'Source Serif 4', serif;
+  }
+
+  .blank {
+    display: inline-block;
+    position: relative;
+  }
+
+  .blank input {
+    border: none;
+    border-bottom: 2px solid var(--ink);
+    background: transparent;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--ink);
+    padding: 0 4px 1px;
+    width: 70px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .blank input:focus {
+    border-bottom-color: var(--gold);
+    background: rgba(184,134,11,0.06);
+  }
+
+  .blank input.correct {
+    border-bottom-color: var(--sage);
+    background: rgba(74,124,89,0.08);
+    color: var(--sage);
+  }
+
+  .blank input.incorrect {
+    border-bottom-color: var(--rust);
+    background: rgba(192,57,43,0.08);
+    color: var(--rust);
+  }
+
+  .blank input.showing-answer {
+    border-bottom-color: var(--gold);
+    background: rgba(184,134,11,0.1);
+    color: var(--gold);
+  }
+
+  .blank .hint {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--cream);
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .blank input.incorrect ~ .hint,
+  .blank input.correct ~ .hint {
+    display: block;
+  }
+
+  .blank .hint::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--ink);
+  }
+
+  .blank .hint.correct-hint { background: var(--sage); }
+  .blank .hint.correct-hint::after { border-top-color: var(--sage); }
+  .blank .hint.incorrect-hint { background: var(--rust); }
+  .blank .hint.incorrect-hint::after { border-top-color: var(--rust); }
+
+  .controls {
+    position: sticky;
+    bottom: 0;
+    background: var(--ink);
+    border-top: 3px solid var(--gold);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+  }
+
+  .btn {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 400;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .btn-primary:hover { background: #d4a017; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid #555;
+  }
+  .btn-secondary:hover { border-color: var(--cream); }
+
+  .btn-danger {
+    background: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+  }
+  .btn-danger:hover { background: rgba(231,76,60,0.1); }
+
+  .score-display {
+    margin-left: auto;
+    color: var(--cream);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+  }
+
+  .score-display .count {
+    color: var(--gold);
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: #333;
+    flex: 1;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .result-banner {
+    display: none;
+    background: var(--sage);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 24px;
+    border-radius: 6px;
+  }
+
+  .result-banner.show { display: block; }
+
+  @media (max-width: 600px) {
+    .page-header { padding: 20px 20px; flex-wrap: wrap; }
+    .page-header .subtitle { display: none; }
+    .content { padding: 24px 16px 100px; }
+    .paragraph-block { padding: 20px 16px; font-size: 0.97rem; }
+    .controls { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+    .blank input { width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div>
+    <div class="level-badge">A2 – B1 &nbsp;·&nbsp; Polski Daily®</div>
+    <h1>Przyimki – Ćwiczenie</h1>
+  </div>
+  <div class="subtitle">Uzupełnij tekst przyimkami</div>
+</header>
+
+<main class="content">
+  <div class="instruction">
+    Wpisz odpowiedni przyimek w każde pole. Kiedy skończysz, kliknij <strong>Sprawdź</strong>, żeby zobaczyć wyniki. Zielony = poprawnie, czerwony = błąd (prawidłowa odpowiedź pojawi się po najechaniu).
+  </div>
+
+  <div id="result-banner" class="result-banner"></div>
+
+  <div id="exercise-container"></div>
+</main>
+
+<div class="controls">
+  <button class="btn btn-primary" onclick="checkAnswers()">✓ Sprawdź</button>
+  <button class="btn btn-secondary" onclick="showAllAnswers()">Pokaż odpowiedzi</button>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="score-display" id="score-display" style="display:none">
+    <span class="count" id="score-count">0</span> / <span id="score-total">0</span>
+  </div>
+  <button class="btn btn-danger" onclick="resetAll()">↺ Reset</button>
+</div>
+
+<script>
+// The exercise text split into paragraphs, with blanks marked as {answer} or {answer1|answer2} for alternates
+const paragraphs = [
+  {
+    label: "Akapit 1",
+    parts: [
+      "Alonso Stern, nauczyciel języka portugalskiego ", {a:"z"}, " Brazyli, mieszka ", {a:"na"}, " krakowskim Kazimierzu ", {a:"przy"}, " ulicy Miodowej ", {a:"ze"}, " swoją piękną dziewczyną, Kasią. Kasia i Alonso poznali się ", {a:"na"}, " wakacjach ", {a:"w"}, " Kurytybie i od razu się ", {a:"w"}, " sobie zakochali. ", {a:"Po"}, " dwóch tygodniach spędzonych razem, Kasia musiała wrócić ", {a:"do"}, " Polski i oboje myśleli, że to koniec romantycznej historii. Alonso zakochał się jednak ", {a:"w"}, " Kasi ", {a:"do"}, " szaleństwa. Czuł, że dzięki dziewczynie ", {a:"z"}, " Polski, w końcu ma szansę ", {a:"na"}, " szczęście. ", {a:"Wbrew"}, " wszystkiemu, co mówili jego znajomi i rodzina, zdecydował się zmienić swoje życie i wyjechać ", {a:"z"}, " Brazylii. ", {a:"Po"}, " pół roku spakował walizki, wsiadł ", {a:"w"}, " samolot i przyleciał ", {a:"do"}, " Polski na stałe."
+    ]
+  },
+  {
+    label: "Akapit 2",
+    parts: [
+      "Ich życie razem było perfekcyjne. Alonso dbał ", {a:"o"}, " Kasię jak ", {a:"o"}, " największy skarb. Spędzali razem każdą wolną chwilę. ", {a:"W"}, " weekendy spotykali się ", {a:"z"}, " przyjaciółmi Kasi albo jeździli ", {a:"po"}, " Małopolsce ", {a:"na"}, " rowerach. ", {a:"W"}, " ciągu tygodnia wieczorami zwykle zamawiali pizzę, nalewali sobie wino ", {a:"do"}, " kieliszków, siadali ", {a:"obok"}, " siebie ", {a:"na"}, " kanapie i oglądali komedie ", {a:"na"}, " Netfliksie."
+    ]
+  },
+  {
+    label: "Akapit 3",
+    parts: [
+      "Pewnego dnia Kasia siedziała ", {a:"przy"}, " stole w kuchni i czytała książkę. Nagle usłyszała dzwonek ", {a:"do"}, " drzwi. ", {a:"Przed"}, " drzwiami stał listonosz, który przyniósł małą paczkę ", {a:"dla"}, " Alonsa. Paczka była zapakowana ", {a:"w"}, " szary papier i nie miała informacji ", {a:"od"}, " kogo była. Kasia była bardzo ciekawa, co było ", {a:"w"}, " środku, ale jej nie otworzyła. Położyła ją ", {a:"na"}, " biurku Alonsa ", {a:"w"}, " sypialni i zapomniała ", {a:"o"}, " niej."
+    ]
+  },
+  {
+    label: "Akapit 4",
+    parts: [
+      "Następnego dnia paczka zniknęła ", {a:"z"}, " biurka, a Alonso nie powiedział Kasi co ", {a:"w"}, " niej było. ", {a:"Od"}, " tej pory zaczął być bardzo zajęty wieczorami. Więcej pracował ", {a:"w"}, " szkole. Czasami ", {a:"podczas"}, " oglądania filmów dostawał maile lub wiadomości ", {a:"na"}, " WhatsAppie, które szybko zamykał. Coraz częściej pytał Kasię ", {a:"o"}, " jej plany i ", {a:"o"}, " której wróci ", {a:"do"}, " domu ", {a:"ze"}, " spotkania ", {a:"z"}, " koleżankami."
+    ]
+  },
+  {
+    label: "Akapit 5",
+    parts: [
+      "Kasia nie była zazdrosną kobietą i próbowała ignorować swoje emocje. Po kilku miesiącach jednak, ", {a:"wbrew"}, " swojej naturze, postanowiła zapytać Alonso ", {a:"o"}, " tę dziwną zmianę. Kiedy Alonso robił śniadanie, Kasia stanęła ", {a:"przed"}, " nim, popatrzyła mu ", {a:"w"}, " oczy i poprosiła, żeby porozmawiali. Podczas rozmowy Alonso był bardzo zdenerwowany. Siedział ", {a:"po"}, " drugiej stronie stołu, ", {a:"naprzeciwko"}, " Kasi i mówił jej, że wszystko jest ", {a:"w"}, " porządku. Ale ona wiedziała, że coś było nie tak. Musiała dowiedzieć się, ", {a:"o"}, " co chodzi!"
+    ]
+  },
+  {
+    label: "Akapit 6",
+    parts: [
+      "Pewnej soboty powiedziała Alsonso, że ", {a:"w"}, " niedzielę idzie ", {a:"do"}, " przyjaciółki i spędzi ", {a:"u"}, " niej kilka godzin. Oczywiście Alonso ucieszył się i Kasia widziała, jak ", {a:"po"}, " kilku minutach pisał ", {a:"do"}, " kogoś wiadomość. ", {a:"W"}, " niedzielę rano miała bardzo zły humor, bo wiedziała, że dzisiaj dowie się prawdy. Oczywiście nie spotkała się ", {a:"z"}, " koleżanką. Tak naprawdę poszła tylko ", {a:"na"}, " kawę ", {a:"do"}, " kawiarni ", {a:"obok"}, " ich bloku i patrzyła ", {a:"przez"}, " okno ", {a:"na"}, " drzwi budynku. Była pewna, że dzisiaj dowie się, jaki sekret ma ", {a:"przed"}, " nią Alonso."
+    ]
+  },
+  {
+    label: "Akapit 7",
+    parts: [
+      "Minęła godzina, a ", {a:"do"}, " bloku nie wchodził nikt oprócz sąsiadów. Kelnerka co chwilę podchodziła ", {a:"do"}, " stolika i pytała Kasię, czy chce coś jeszcze zamówić. Kasia poprosiła ", {a:"o"}, " trzecią kawę. Miała serce ", {a:"w"}, " gardle i była cała ", {a:"w"}, " nerwach. ", {a:"Po"}, " półtorej godziny ", {a:"pod"}, " drzwi bloku podeszła kobieta. Miała ", {a:"na"}, " sobie sportową kurtkę i plecak. Kasia widziała, jak kobieta naciska numer 23 na domofonie. Numer 23 to było mieszkanie jej i Alonsa! Siedziała ", {a:"w"}, " kawiarni jeszcze ", {a:"przez"}, " dziesięć minut, a potem zapłaciła ", {a:"za"}, " kawę, wstała ", {a:"od"}, " stolika, założyła płaszcz i pobiegła ", {a:"do"}, " domu."
+    ]
+  },
+  {
+    label: "Akapit 8",
+    parts: [
+      "Kiedy weszła ", {a:"do"}, " bloku, winda nie działała, więc wbiegła ", {a:"po"}, " schodach ", {a:"na"}, " piąte piętro. Stanęła ", {a:"przed"}, " drzwiami. Stała tam kilka minut, bo bała się, co zobaczy, kiedy otworzy drzwi. W końcu po cichu włożyła klucz ", {a:"do"}, " zamka i otworzyła je. Weszła ", {a:"do"}, " przedpokoju. Wszystko wyglądało normalnie tylko ", {a:"na"}, " wieszaku wisiała kurtka kobiety, a ", {a:"przy"}, " szafce stały jej buty. Kasia szybko zdjęła płaszcz i rzuciła go ", {a:"na"}, " szafkę. ", {a:"Z"}, " salonu usłyszała śmiech dwóch osób. Weszła ", {a:"do"}, " salonu ", {a:"bez"}, " pukania."
+    ]
+  },
+  {
+    label: "Akapit 9",
+    parts: [
+      {a:"Przy"}, " biurku siedzieli Alonso i kobieta. ", {a:"Na"}, " biurku stały dwa kubki ", {a:"z"}, " kawą i mleko, a ", {a:"obok"}, " nich leżały otwarta książka i zeszyt."
+    ]
+  },
+  {
+    label: "Akapit 10",
+    parts: [
+      "Alonso przestał się uśmiechać. Popatrzył ", {a:"na"}, " Kasię i powiedział ", {a:"po"}, " polsku: „No i koniec. To jest Dorota. ", {a:"Od"}, " pół roku uczę się z nią polskiego. ", {a:"Dla"}, " ciebie." Dorota wstała ", {a:"z"}, " krzesła i podeszła ", {a:"do"}, " Kasi. Wyciągnęła ", {a:"do"}, " niej rękę i powiedziała: „Bardzo mi miło. Alonso to bardzo zdolny uczeń!""
+    ]
+  },
+  {
+    label: "Zakończenie",
+    parts: [
+      "Jak możesz się domyślać, Kasia zaczerwieniła się ", {a:"ze"}, " wstydu i przeprosiła Alonsa i Dorotę ", {a:"za"}, " swoją podejrzliwość."
+    ]
+  }
+];
+
+let inputEls = [];
+let answers = [];
+
+function buildExercise() {
+  const container = document.getElementById('exercise-container');
+  container.innerHTML = '';
+  inputEls = [];
+  answers = [];
+  let globalIdx = 0;
+
+  paragraphs.forEach((para, pi) => {
+    const block = document.createElement('div');
+    block.className = 'paragraph-block';
+    block.setAttribute('data-num', para.label);
+
+    para.parts.forEach(part => {
+      if (typeof part === 'string') {
+        block.appendChild(document.createTextNode(part));
+      } else {
+        const answer = part.a;
+        const idx = globalIdx++;
+        answers.push(answer.toLowerCase());
+
+        const span = document.createElement('span');
+        span.className = 'blank';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.dataset.idx = idx;
+        input.dataset.answer = answer.toLowerCase();
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('autocorrect', 'off');
+        input.setAttribute('spellcheck', 'false');
+        // Size input to answer length but min 40px
+        const w = Math.max(44, answer.length * 13 + 16);
+        input.style.width = w + 'px';
+        input.placeholder = '...';
+
+        input.addEventListener('input', updateProgress);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const inputs = Array.from(document.querySelectorAll('.blank input'));
+            const next = inputs[idx + 1];
+            if (next) next.focus();
+          }
+        });
+
+        const hint = document.createElement('span');
+        hint.className = 'hint';
+
+        span.appendChild(input);
+        span.appendChild(hint);
+        block.appendChild(span);
+        inputEls.push(input);
+      }
+    });
+
+    container.appendChild(block);
+  });
+
+  document.getElementById('score-total').textContent = answers.length;
+  updateProgress();
+}
+
+function normalize(str) {
+  return str.trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e')
+    .replace(/ł/g,'l').replace(/ń/g,'n').replace(/ó/g,'o')
+    .replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z');
+}
+
+function checkAnswers() {
+  let correct = 0;
+  inputEls.forEach((input, i) => {
+    const val = input.value.trim().toLowerCase();
+    const ans = answers[i];
+    input.classList.remove('correct', 'incorrect', 'showing-answer');
+    const hint = input.nextElementSibling;
+
+    if (!val) {
+      hint.textContent = '';
+      hint.className = 'hint';
+      return;
+    }
+
+    // Accept with or without diacritics
+    const isCorrect = val === ans || normalize(val) === normalize(ans);
+    if (isCorrect) {
+      input.classList.add('correct');
+      hint.textContent = '✓';
+      hint.className = 'hint correct-hint';
+      correct++;
+    } else {
+      input.classList.add('incorrect');
+      hint.textContent = ans;
+      hint.className = 'hint incorrect-hint';
+    }
+  });
+
+  // Count only filled
+  const filled = inputEls.filter(i => i.value.trim()).length;
+  const total = answers.length;
+  const pct = Math.round((correct / total) * 100);
+
+  document.getElementById('score-count').textContent = correct;
+  document.getElementById('score-total').textContent = total;
+  document.getElementById('score-display').style.display = 'flex';
+  document.getElementById('score-display').style.alignItems = 'baseline';
+  document.getElementById('score-display').style.gap = '6px';
+
+  const banner = document.getElementById('result-banner');
+  if (filled === total) {
+    banner.className = 'result-banner show';
+    if (pct === 100) {
+      banner.textContent = `🎉 Brawo! Wszystkie ${total} odpowiedzi poprawne! Perfekcyjny wynik!`;
+      banner.style.background = '#4a7c59';
+    } else if (pct >= 80) {
+      banner.textContent = `👍 Dobra robota! ${correct} z ${total} poprawnych (${pct}%). Prawie!`;
+      banner.style.background = '#6b8e23';
+    } else {
+      banner.textContent = `💪 ${correct} z ${total} poprawnych (${pct}%). Spróbuj jeszcze raz!`;
+      banner.style.background = '#b8860b';
+    }
+    banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function showAllAnswers() {
+  inputEls.forEach((input, i) => {
+    input.value = answers[i];
+    input.classList.remove('correct', 'incorrect');
+    input.classList.add('showing-answer');
+    const hint = input.nextElementSibling;
+    hint.textContent = '';
+    hint.className = 'hint';
+  });
+  document.getElementById('score-display').style.display = 'none';
+  document.getElementById('result-banner').className = 'result-banner';
+  updateProgress();
+}
+
+function resetAll() {
+  inputEls.forEach(input => {
+    input.value = '';
+    input.classList.remove('correct', 'incorrect', 'showing-answer');
+    const hint = input.nextElementSibling;
+    hint.textContent = '';
+    hint.className = 'hint';
+  });
+  document.getElementById('score-display').style.display = 'none';
+  document.getElementById('result-banner').className = 'result-banner';
+  updateProgress();
+  if (inputEls.length) inputEls[0].focus();
+}
+
+function updateProgress() {
+  const filled = inputEls.filter(i => i.value.trim()).length;
+  const pct = (filled / answers.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+buildExercise();
+</script>
+</body>
+</html>
