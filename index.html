@@ -370,7 +370,7 @@ const paragraphs = [
   {
     label: "Akapit 10",
     parts: [
-      "Alonso przestał się uśmiechać. Popatrzył ", {a:"na"}, " Kasię i powiedział ", {a:"po"}, " polsku: „No i koniec. To jest Dorota. ", {a:"Od"}, " pół roku uczę się z nią polskiego. ", {a:"Dla"}, " ciebie." Dorota wstała ", {a:"z"}, " krzesła i podeszła ", {a:"do"}, " Kasi. Wyciągnęła ", {a:"do"}, " niej rękę i powiedziała: „Bardzo mi miło. Alonso to bardzo zdolny uczeń!""
+      "Alonso przestał się uśmiechać. Popatrzył ", {a:"na"}, " Kasię i powiedział ", {a:"po"}, " polsku: >>No i koniec. To jest Dorota. ", {a:"Od"}, " pół roku uczę się z nią polskiego. ", {a:"Dla"}, " ciebie.<< Dorota wstała ", {a:"z"}, " krzesła i podeszła ", {a:"do"}, " Kasi. Wyciągnęła ", {a:"do"}, " niej rękę i powiedziała: >>Bardzo mi miło. Alonso to bardzo zdolny uczeń!<<"
     ]
   },
   {
@@ -543,7 +543,7 @@ function updateProgress() {
   document.getElementById('progress-fill').style.width = pct + '%';
 }
 
-buildExercise();
+document.addEventListener('DOMContentLoaded', buildExercise);
 </script>
 </body>
 </html>
